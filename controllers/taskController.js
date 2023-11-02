@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const Task = require('../models/task')
 const asyncWrapper = require('../middleware/async')
+const {createCustomError} = require('../middleware/custom-error')
+
 
 const taskController =(req,res)=>{
 res.send('main page')
@@ -19,13 +21,19 @@ const addTask =asyncWrapper(async(req,res)=>{
     })
 
 // GET A SINGLE TASK
-const getTask =asyncWrapper(async(req,res)=>{
+const getTask =asyncWrapper(async(req,res,next)=>{
         const data = await Task.findById(req.params.id)
         if(!data){
-            res.status(404).json({msg:"No task with this id"})
-            return
+            // res.status(404).json({msg:"No task with this id"})
+          //  const error = new Error('Not Found!')
+           // error.status = 404;
+           // return next(error)
+           return next(createCustomError(`No Task with ${req.params.id}`,404))
+
+        }else{
+            res.status(200).send(data)
         }
-        res.status(200).send(data)
+        
 })
 
 
